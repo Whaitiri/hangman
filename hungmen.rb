@@ -1,24 +1,40 @@
 #!/usr/bin/env ruby
+$playerGuesses = 10
 
 class Player
   attr_accessor :guessRemaining, :playerName
-  def initialize(allowedGuesses, playerName)
-    @allGuesses = []
-    @guessRemaining = allowedGuesses
-    @playerName = playerName
+  def createPlayer
+    puts "What is your name"
+    @playerName = gets.chomp
+    @playerGuess = $playerGuesses
   end
 
   def loseGuess
-    @guessRemaining -= 1
+    @playerGuess -= 1
   end
 
 end
 
 class Game
   def initialize
-    puts "Enter name:"
-    name = gets.chomp
-    @player = Player.new(3, name)
+    @players = []
+    puts "How many players? 1 or 2"
+    response = Integer(gets.chomp)
+    if response == 1 or response == 2
+      response.times do |x|
+        @players[x] = Player.new
+        @players[x].createPlayer
+      end
+      rollCall
+    else
+      initialize
+    end
+  end
+
+  def rollCall
+    @players.each do |player|
+      puts "Hello, #{player.playerName}!"
+    end
   end
 
   def callWord
@@ -55,4 +71,4 @@ class Game
 end
 
 playGame = Game.new
-playGame.input
+p "you made it"
