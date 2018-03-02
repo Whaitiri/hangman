@@ -1,17 +1,23 @@
 #!/usr/bin/env ruby
-$playerGuesses = 10
+$playerGuessNum = 10
 
 class Player
-  attr_accessor :guessRemaining, :playerName
+  attr_accessor :playerGuess, :playerName, :playerGuesses
   def createPlayer
     puts "What is your name"
     @playerName = gets.chomp
-    @playerGuess = $playerGuesses
+    @playerGuess = $playerGuessNum
+    @playerGuesses = []
   end
 
   def loseGuess
     @playerGuess -= 1
   end
+
+  def storeGuess(x)
+    @playerGuesses << x
+  end
+
 
 end
 
@@ -25,15 +31,8 @@ class Game
         @players[x] = Player.new
         @players[x].createPlayer
       end
-      rollCall
     else
       initialize
-    end
-  end
-
-  def rollCall
-    @players.each do |player|
-      puts "Hello, #{player.playerName}!"
     end
   end
 
@@ -53,22 +52,33 @@ class Game
   end
 
   def input
-    if @player.guessRemaining == 0
-      puts "You have no coins left!"
-      exit
+    @players.each do |player|
+      if player.playerGuess == 0
+        puts "You have no coins left!"
+        exit
+      end
+      puts "Press [y] to generate a word, #{player.playerName}; you have #{player.playerGuess} coins remaining."
+      if player.playerGuesses.length > 0
+        puts "#{player.playerName}'s previous words:"
+        player.playerGuesses.each do |guess|
+          print "#{guess}, "
+        end
+        puts ""
+      end
+      response = gets.chomp
+      if response == 'y'
+        word = self.callWord
+        puts word
+        player.storeGuess(word)
+        player.loseGuess
+      else
+        exit
+      end
     end
-    puts "Press [y] to generate a word, #{@player.playerName}; you have #{@player.guessRemaining} coins remaining."
-    response = gets.chomp
-    if response == 'y'
-      puts self.callWord
-      @player.loseGuess
-      self.input
-    else
-      exit
-    end
+    self.input
   end
 
 end
 
 playGame = Game.new
-p "you made it"
+playGame.input
