@@ -21,9 +21,9 @@ class Game
   def initialize
     @players = []
     @currentWord = self.callWord
-    @currentWordBlanked = []
+    currentWordBlanked = []
     @currentWord.each do
-      @currentWordBlanked << '_'
+      currentWordBlanked << '_'
     end
 
     puts "How many players? 1 or 2"
@@ -34,7 +34,7 @@ class Game
         @players[x].createPlayer(x+1)
       end
       @players.each do |player|
-        player.playerWord = @currentWordBlanked
+        player.playerWord = currentWordBlanked.dup
       end
     else
       initialize
