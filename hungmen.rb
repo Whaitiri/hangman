@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-$playerGuessNum = 10
+$playerGuessNum = 2
 
 class Player
   attr_accessor :playerGuess, :playerWord, :playerName, :playerGuesses, :playerNum
@@ -18,7 +18,8 @@ class Player
 end
 
 class Game
-  def initialize
+  def initialize(gameNum)
+    @gameNum = gameNum
     @players = []
     @currentWord = self.callWord
     currentWordBlanked = []
@@ -70,7 +71,7 @@ class Game
       end
     end
     if self.checkGuessesLeft
-      exit
+
     else
       self.input
     end
@@ -155,7 +156,7 @@ class Game
   end
 
   def summarizeGame
-    puts "Summary:"
+    puts "Summary for Game #{@gameNum}:"
     puts "The word was #{@currentWord.join}"
     @players.each do |player|
       puts "#{player.playerName}'s guesses:"
@@ -169,5 +170,35 @@ class Game
 
 end
 
-playGame = Game.new
-playGame.input
+class System
+  def initialize
+    @games = []
+    @gamesPlayed = 0
+    firstGame = Game.new(1)
+    firstGame.input
+    @games << firstGame
+    self.playAgain
+  end
+
+  def playAgain
+    puts "Would you like to play again? (enter [y] or [n])"
+    response = gets.chomp
+    if response == "y"
+      @gamesPlayed += 1
+      @games[@gamesPlayed] = Game.new(@gamesPlayed+1)
+      @games[@gamesPlayed].input
+      self.playAgain
+    else
+      puts "Thanks for playing!"
+      puts ""
+      puts "Summary of all games:"
+      @games.each do |game|
+        game.summarizeGame
+
+      end
+
+    end
+  end
+end
+
+gameSystem = System.new
