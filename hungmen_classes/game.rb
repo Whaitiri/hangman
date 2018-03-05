@@ -1,5 +1,7 @@
 class Game # game.rb
+  attr_accessor :currentWord
   def initialize(gameNum)
+    @gameWon = false
     @playerGuessNum = 3
     @gameNum = gameNum
     @players = []
@@ -8,15 +10,15 @@ class Game # game.rb
     begin
       puts "How many players? 1 or 2" # use a begin/rescue/end
       response = Integer(gets.chomp)
-      if response == 1 or response == 2
+      if response == 1 || response == 2
         response.times do |x|
-          puts "What is your name, Player #{x+1}?"
+          puts "What is your name, Player #{x + 1}?"
           playerName = gets.chomp
-          playerWordBlanked = @currentWord.map { |c| '_' }
-          @players[x] = Player.new(x+1, playerName.dup, playerWordBlanked.dup, @playerGuessNum.dup)
+          playerWordBlanked = @currentWord.map { '_' }
+          @players[x] = Player.new(x + 1, playerName, playerWordBlanked, @playerGuessNum.dup)
         end
       else
-        raise if response != 1 or response != 2 # retry if response != 1 or if response != 2
+        raise # retry if response != 1 or if response != 2
       end
     rescue
       puts "Please input the number 1 or 2"
@@ -39,21 +41,23 @@ class Game # game.rb
     return wordList[rand(0...wordList.count)].split("") #return is implicit here
   end
 
-  def input
+  def gameLoop #rename this
     @players.each do |player|
       if player.playerGuess < 1
         puts "#{player.playerName} has run out of guesses!"
         next
       end
-      self.checkGuess(player)
+      processInput = Process_input_from_game.new(self, player)
+      processInput.process_input
+
       if player.playerWord == @currentWord
         puts "#{player.playerName} won!"
+        @gameWon = true
         self.summarizeGame
-        exit
       end
     end
-    unless self.checkGuessesLeft #unless
-      self.input
+    unless self.checkGuessesLeft || @gameWon
+      self.gameLoop
     end
   end
 
@@ -68,54 +72,6 @@ class Game # game.rb
     end
     puts "#{player.playerWord.join(' ')}"
     print "Input a letter: "
-  end
-
-  def checkGuess(player)
-    begin
-      self.guessPrompt(player)
-      response = gets.chomp.downcase
-      if response == "cheat" #enter cheat for testing
-        puts "TESTING ONLY - THE ANSWER IS #{@currentWord.join}"
-        response = nil
-
-      elsif response == 'exit'
-        exit
-
-      elsif response.length > 1 or response =~ /[^a-z]/ or response == ''
-        puts "please enter a single letter"
-        response = nil
-
-      elsif player.playerGuesses.include?(response)
-        puts "you have already input that letter"
-        response = nil
-
-      end
-      raise
-    rescue
-      retry if response == nil
-    end
-    i = 0
-    guessFail = 0
-    @currentWord.each do |letter|
-      if letter == response
-        player.playerWord[i] = letter
-      else
-        guessFail += 1
-      end
-      i += 1
-    end
-
-    unless player.playerGuesses.include?(response) # change to unless, remove the else
-      player.playerGuesses << response
-    end
-
-    if guessFail >= i
-      player.playerGuess -= 1
-      puts "#{player.playerName}'s guess was incorrect..."
-    else
-      puts "#{player.playerName}'s guess was correct!"
-    end
-    puts "#{player.playerName}: #{player.playerWord.join(' ')}"
   end
 
   def checkGuessesLeft

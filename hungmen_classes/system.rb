@@ -13,8 +13,7 @@ class System # system.rb
     response = gets.chomp
     if response == "y"
       @games[@gamesPlayed] = Game.new(@gamesPlayed + 1)
-      @games[@gamesPlayed].input
-      @games << @games[@gamesPlayed]
+      @games[@gamesPlayed].gameLoop
       @gamesPlayed += 1
       self.playGame
     else
@@ -26,6 +25,7 @@ class System # system.rb
         @games.each do |game|
           game.summarizeGame
         end
+        # @games.each(&:summarizeGame)
       end
 
     end
